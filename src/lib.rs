@@ -47,6 +47,12 @@ impl Sampling {
     pub const SAMPLING_411: Sampling = Sampling(libjpeg_turbo_sys::TJSAMP_TJSAMP_411);
 }
 
+pub fn buf_size(width: i32, height: i32, sampling: Sampling) -> usize {
+    unsafe {
+        libjpeg_turbo_sys::tjBufSize(width, height, sampling.0 as _) as _
+    }
+}
+
 pub struct Compressor {
     handle: libjpeg_turbo_sys::tjhandle,
 }
