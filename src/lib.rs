@@ -53,6 +53,12 @@ pub fn buf_size(width: i32, height: i32, sampling: Sampling) -> usize {
     }
 }
 
+pub fn buf_size_yuv(width: i32, pad: i32, height: i32, sampling: Sampling) -> usize {
+    unsafe {
+        libjpeg_turbo_sys::tjBufSizeYUV2(width, pad, height, sampling.0 as _) as _
+    }
+}
+
 pub struct Compressor {
     handle: libjpeg_turbo_sys::tjhandle,
 }
@@ -91,7 +97,7 @@ impl Compressor {
                 self.handle,
                 pixels.as_ptr(),
                 width,
-                0,
+                1,
                 height,
                 sampling.0 as _,
                 &mut destination.as_mut_ptr(),
