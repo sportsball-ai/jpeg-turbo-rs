@@ -64,7 +64,7 @@ impl Compressor {
         }
     }
 
-    pub fn compress(&mut self, pixels: &[u8], width: i32, height: i32, pixel_format: PixelFormat, destination: &mut [u8], sampling: Sampling, quality: i32) -> Result<(), Error> {
+    pub fn compress(&mut self, pixels: &[u8], width: i32, height: i32, pixel_format: PixelFormat, destination: &mut [u8], sampling: Sampling, quality: i32) -> Result<usize, Error> {
         let mut destination_size = destination.len() as u64;
         unsafe {
             self.check(libjpeg_turbo_sys::tjCompress2(
@@ -79,8 +79,28 @@ impl Compressor {
                 sampling.0 as _,
                 quality,
                 libjpeg_turbo_sys::TJFLAG_NOREALLOC as _,
-            ))
+            ))?;
         }
+        Ok(destination_size as usize)
+    }
+
+    pub fn compress_yuv(&mut self, pixels: &[u8], width: i32, height: i32, destination: &mut [u8], sampling: Sampling, quality: i32) -> Result<usize, Error> {
+        let mut destination_size = destination.len() as u64;
+        unsafe {
+            self.check(libjpeg_turbo_sys::tjCompressFromYUV(
+                self.handle,
+                pixels.as_ptr(),
+                width,
+                0,
+                height,
+                sampling.0 as _,
+                &mut destination.as_mut_ptr(),
+                &mut destination_size,
+                quality,
+                libjpeg_turbo_sys::TJFLAG_NOREALLOC as _,
+            ))?;
+        }
+        Ok(destination_size as usize)
     }
 
     unsafe fn check(&mut self, status: c_int) -> Result<(), Error> {
