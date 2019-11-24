@@ -16,6 +16,11 @@ fn main() {
         std::fs::copy("vendor/macos/lib/libturbojpeg.a", out_dir.join("libturbojpeg.a")).unwrap();
     }
 
+    #[cfg(target_os = "linux")]
+    {
+        std::fs::copy("vendor/linux/lib/libturbojpeg.a", out_dir.join("libturbojpeg.a")).unwrap();
+    }
+
     let bindings = bindings.header("vendor/include/turbojpeg.h")
         .generate()
         .expect("unable to generate bindings");
